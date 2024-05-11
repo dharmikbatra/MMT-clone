@@ -17,6 +17,16 @@ const signToken = id => {
 
 const createSendToken = (user, statusCode, res) => {
     const token = signToken(user._id);
+    const cookieOptions = {
+        expires: new Date(Date.now() + 24*60*60*1000*process.env.JWT_COOKIE_EXPIRY),
+        httpOnly:true   // to prevent cross site scripting attacks
+    }
+    if (process.env.NODE_ENV === 'production'){cookieOptions.secure = true}
+
+    user.password = undefined
+
+
+    res.cookie('jwt',token, cookieOptions)
 
     res.status(statusCode).json({
         status:'success',
@@ -97,7 +107,7 @@ exports.restrictTo = (...roles) => {
         // roles ['admin', 'lead-guide'].  role = 'user'
         if(!roles.includes(req.user.role)){
             return next(
-                new AppError('you dont have access for the action', 403)
+                new AppError('you do not have access for this action', 403)
             )
         }
         next()

@@ -1,6 +1,8 @@
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
+const factory = require('../controllers/handlerFactory')
+
 
 const filterObject = (obj, ...allowedFields) => {
     const newObj = {};
@@ -10,44 +12,22 @@ const filterObject = (obj, ...allowedFields) => {
     return newObj
 }
 
-exports.getAllUsers = async (req,res) => {
-    const users = await User.find();
-    res.status(200).json({
-        status:"success",
-        results:users.length,
-        data:{
-            users
-        }
-    })
-}
 
 exports.createUser = (req,res) => {
     res.status(500).json({
         status:'err',
-        message:'not defined'
+        message:'THis route is not defined, use /signup instead'
     })
 }
 
-exports.getUser = (req,res) => {
-    res.status(500).json({
-        status:'err',
-        message:'not defined'
-    })
-}
 
-exports.updateUser = (req,res) => {
-    res.status(500).json({
-        status:'err',
-        message:'not defined'
-    })
-}
+exports.getAllUsers = factory.getAll(User)
 
-exports.deleteUser = (req,res) => {
-    res.status(500).json({
-        status:'err',
-        message:'not defined'
-    })
-}
+exports.getUser = factory.getOne(User)
+/// do not update passwords with this, save middle wares won't work
+exports.updateUser = factory.updateOne(User)
+
+exports.deleteUser = factory.deleteOne(User)
 
 exports.updateMe = catchAsync(async (req,res,next) => {
     // create error if user posts password data
