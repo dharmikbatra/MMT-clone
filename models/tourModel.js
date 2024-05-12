@@ -114,8 +114,11 @@ const tourSchema = new mongoose.Schema({
     toObject:{virtuals:true}
 })
 
+tourSchema.index({price:1, ratingsAverage:-1}) // 1and -1 for ascending descending
+tourSchema.index({slug:1})
 
-tourSchema.virtual('durationWeeks').get(function() {  // virtual field, iske liye hi virtuals:true kara hai 
+
+tourSchema.virtual('durationWeeks').get(function() {  // virtual field, iske liye hi virtuals:true kara hai
     return this.duration / 7
 })
 

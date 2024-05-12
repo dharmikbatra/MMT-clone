@@ -20,6 +20,11 @@ exports.createUser = (req,res) => {
     })
 }
 
+exports.getMe = (req,res,next) => {
+    req.params.id = req.user.id
+    next()
+}
+
 
 exports.getAllUsers = factory.getAll(User)
 
@@ -36,7 +41,7 @@ exports.updateMe = catchAsync(async (req,res,next) => {
     }
 
     //update user document
-    const filteredBody = filterObject(req.body, 'name', 'email'); 
+    const filteredBody = filterObject(req.body, 'name', 'email');
     // varna koi bhi aake kuch bhi change kar dega like role, expiry time and all
     const user = await User.findByIdAndUpdate(req.user.id, filteredBody ,{
         new:true,
