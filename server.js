@@ -33,16 +33,16 @@ mongoose.connect(DB, {
 // })
 
 // testTour.save().then(doc => {
-//     console.log("dharmik")
+    // console.log("dharmik")
 //     console.log(doc)
 // }).catch(err => {
-//     console.log("batra")
+    // console.log("batra")
 //     console.log(err)
 // })
 
 
 const server = app.listen(process.env.PORT, () => {
-    console.log(`app running o port ${port}`)
+    console.log(`app running on port ${port}`)
 })
 
 process.on('unhandledRejection', err => {
