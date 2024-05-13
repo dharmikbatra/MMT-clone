@@ -11,7 +11,7 @@ const reviewSchema = new mongoose.Schema({
         type:String,
         required:[true, 'review cant be empty'],
         maxLength:200,
-        minLength:20
+        minLength:10
     },
     rating:{
         type:Number,
@@ -36,6 +36,9 @@ const reviewSchema = new mongoose.Schema({
     toJSON:{virtuals:true},
     toObject:{virtuals:true}
 })
+
+reviewSchema.index({tour:1,user:1}, {unique:true})
+
 
 reviewSchema.pre(/^find/, function(){
     // this.populate({
@@ -83,7 +86,7 @@ reviewSchema.post('save', function() {
 })
 
 reviewSchema.pre(/^findOneAnd/, async function(next){
-    this.r = await this.findOne()
+    this.r = await this.findOne() // but here the document won't be updated, so cant call calcAvg from here
     // console.log(r)
     next()
 })
@@ -92,6 +95,7 @@ reviewSchema.post(/^findOneAnd/, async function(next){
     // await this.findOne() // doesn't work here as query has already executed
     await this.r.constructor.calcAverageRatings(this.r.tour)
 })
+
 const Review = mongoose.model('Review', reviewSchema);
 
 module.exports = Review

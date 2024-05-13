@@ -33,7 +33,8 @@ const tourSchema = new mongoose.Schema({
         type:Number,
         default:4.5,
         max:[5,"max r is 5"],
-        min:[1,"min r is 1"]
+        min:[1,"min r is 1"],
+        set: val => Math.round(val*10)/10
     },
     ratingsQuantity:{
         type:Number,
@@ -116,6 +117,7 @@ const tourSchema = new mongoose.Schema({
 
 tourSchema.index({price:1, ratingsAverage:-1}) // 1and -1 for ascending descending
 tourSchema.index({slug:1})
+tourSchema.index({startLocation:['2dsphere']})
 
 
 tourSchema.virtual('durationWeeks').get(function() {  // virtual field, iske liye hi virtuals:true kara hai
@@ -159,12 +161,7 @@ tourSchema.pre(/^find/, function(next){  // regex for all fxns starting with fin
     this.start = Date.now()
     next()
 })
-tourSchema.pre('aggregate', function(next) {
-    this.pipeline().unshift({
-        $match:{secretTour:{$ne:true}}
-    })
-    next()
-})
+
 
 tourSchema.pre(/^find/, function(next){
     this.populate({ // alag query hogi proper to performance will go a bit down, but we saved some storage
@@ -180,6 +177,12 @@ tourSchema.post(/^find/, function(doc, next){
 })
 
 //aggregation middleware
+// tourSchema.pre('aggregate', function(next) {
+//     this.pipeline().unshift({
+//         $match:{secretTour:{$ne:true}}
+//     })
+//     next()
+// })
 
 
 const Tour = mongoose.model('Tour', tourSchema);

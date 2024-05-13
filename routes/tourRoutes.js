@@ -17,8 +17,10 @@ router.route('/monthly-plan/:year').get(
     authController.restrictTo('admin', 'lead-guide'),
     tourController.getMonthlyPlan
 )
+router.route('/distances/:latlong/unit/:unit').get(tourController.getDistances)
 
-
+router.route('/tours-within/:distance/center/:latlong/unit/:unit').get(tourController.getToursWithin)
+// can be done like this also:  distance=23&center=40....
 router
     .route('/')
     .get( tourController.getAllRoutes)
