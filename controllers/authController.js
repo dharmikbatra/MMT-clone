@@ -75,6 +75,8 @@ exports.protect = catchAsync(async (req,res,next) => {
     let token = ''
     if (req.headers.authorization  && req.headers.authorization.startsWith('Bearer')){
         token = req.headers.authorization.split(' ')[1]
+    }else if(req.cookies.jwt){
+        token = req.cookies.jwt
     }
 
     if(!token){
@@ -191,3 +193,47 @@ exports.updatePassword = catchAsync(async (req,res,next) => {
     // log user in, send JWT
     createSendToken(user,200,res)
 })
+
+// only for render pages, no errors!!
+exports.isLoggedIn = async (req,res,next) => {
+    // get the token and check if it's there
+    // validate token 
+    // next
+    if(req.cookies.jwt){
+        try{
+            const decoded = await promisify(jwt.verify)(
+                req.cookies.jwt,
+                process.env.JWT_SECRET
+            )
+            const currentUser = await User.findById(decoded.id)
+            if (!currentUser){
+                return next()
+            }
+            if (currentUser.changedPasswordAfter(decoded.iat)){
+                return next()
+            }
+            res.locals.user = currentUser // logged in user in the pug template
+            console.log("in logged in")
+            console.log(currentUser)
+            return next()
+        }catch (err){
+            return next()
+        }
+    }
+    next()
+
+}
+
+exports.logout = (req,res) => {
+    const cookieOptions = {
+        expires: new Date(Date.now() + 150),
+        httpOnly:true   // to prevent cross site scripting attacks
+    }
+
+    if (process.env.NODE_ENV === 'production'){cookieOptions.secure = true}
+
+    res.cookie('jwt',"logged out", cookieOptions)
+    res.status(200).json({
+        status:"success"
+    })
+}

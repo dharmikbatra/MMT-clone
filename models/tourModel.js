@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 const slugify = require('slugify')
 const validator = require('validator')
-// const User = require('./userModel')
+const User = require('./userModel')
 const tourSchema = new mongoose.Schema({
     name: {
         type:String,
@@ -140,20 +140,20 @@ tourSchema.pre('save', function(next){
 
 
 // This was for embedding the users into the tours
-// tourSchema.pre('save', async function(next){
-//     const guidesPromise = this.guides.map(async id => await User.findById(id))
-//     this.guides = await Promise.all(guidesPromise)
-//     next()
-// })
+tourSchema.pre('save', async function(next){
+    const guidesPromise = this.guides.map(async id => await User.findById(id))
+    this.guides = await Promise.all(guidesPromise)
+    next()
+})
 
-// tourSchema.pre('save', function(next){
-//     console.log("second pre")
-//     next()
-// })
-// tourSchema.post('save', function(doc, next){
-//     console.log(doc)
-//     next()
-// })
+tourSchema.pre('save', function(next){
+    console.log("second pre")
+    next()
+})
+tourSchema.post('save', function(doc, next){
+    console.log(doc)
+    next()
+})
 
 //query middleware
 tourSchema.pre(/^find/, function(next){  // regex for all fxns starting with find

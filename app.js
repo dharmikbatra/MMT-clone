@@ -10,15 +10,56 @@ const hpp = require("hpp")
 const tourRouter = require('./routes/tourRoutes')
 const userRouter = require('./routes/userRoutes')
 const reviewRouter= require('./routes/reviewRoutes')
+const viewRouter = require('./routes/viewRoutes')
 const { whitelist } = require('validator')
+const path = require('path')
+var cors= require('cors');
+const cookieParser = require('cookie-parser')
 const app = express()
+
+// for map functionality in the wesite
+const scriptSrcUrls = ['https://unpkg.com/',
+    'https://tile.openstreetmap.org'];
+const styleSrcUrls = [
+    'https://unpkg.com/',
+    'https://tile.openstreetmap.org',
+    'https://fonts.googleapis.com/'
+];
+const connectSrcUrls = ['https://unpkg.com', 'https://tile.openstreetmap.org'];
+const fontSrcUrls = ['fonts.googleapis.com', 'fonts.gstatic.com'];
+ 
+//set security http headers
+
+app.set('view engine', 'pug')
+app.set('views', path.join(__dirname, 'views'))
+
+
+// for serving static files
+app.use(express.static(path.join(__dirname, 'public')))
 
 // GLOBAL MIDDLEWARE
 // security middleware, which includes 14 small security middlewares
 // which sets HTTP response headers, some are on some are off
-app.use(helmet())
+// app.use(helmet())
 
+app.use(
+    helmet.contentSecurityPolicy({
+      directives: {
+        defaultSrc: ["'self'"],
+        baseUri: ["'self'"],
+        connectSrc: ["'self'", 'http://127.0.0.1:3000','http://localhost:3000','ws://localhost:63838/', ...connectSrcUrls],
+        scriptSrc: ["'self'", "https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js", ...scriptSrcUrls],
+        styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+        workerSrc: ["'self'", 'blob:'],
+        objectSrc: ["'none'"],
+        imgSrc: ["'self'", 'blob:', 'data:', 'https:'],
+        fontSrc: ["'self'", 'https:', 'data:', ...fontSrcUrls],
+        upgradeInsecureRequests: [],
+      }
+    })
+  );
 
+app.use(cors());
 if (process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'))
 }
@@ -35,6 +76,7 @@ app.use('/api', limiter)
 app.use(express.json({
     limit:'10kb'
 }));
+app.use(cookieParser())
 
 // data sanitisation against NOSQL query injection
 app.use(mongoSanitize()) // filters $ and . to avoid tricks to get db access
@@ -48,24 +90,23 @@ app.use(hpp())  // clear the query string
 // test middleware
 app.use((req,res,next) => {
     req.requestTime = new Date().toISOString();
-    console.log(req.headers)
+    console.log(req.cookies)
     next();
 })
 
+//for frontend
+
+
+// api 
 app.use('/api/v1/tours' , tourRouter)
 app.use('/api/v1/users' , userRouter)
 app.use('/api/v1/reviews', reviewRouter)
+
+
+app.use('/', viewRouter)
+
 app.all('*',(req,res,next)=>{
     next(new AppError('galat end point', 404))
-    // const err = new Error('galat end point')
-    // err.status = 'fail'
-    // err.statusCode = 404
-
-    // next(err)      // whenever we pass anything in ou next fxn, its assumed to be error only !!
-    // res.status(404).json({
-    //     status:"failure",
-    //     message:`hello ji, galat end point ${req.originalUrl}`
-    // })
 })
 
 app.use(globalErrorHandler)
