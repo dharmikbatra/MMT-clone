@@ -76,6 +76,8 @@ app.use('/api', limiter)
 app.use(express.json({
     limit:'10kb'
 }));
+app.use(express.urlencoded({extended:true, limit:'10kb'}))
+
 app.use(cookieParser())
 
 // data sanitisation against NOSQL query injection
@@ -106,6 +108,7 @@ app.use('/api/v1/reviews', reviewRouter)
 app.use('/', viewRouter)
 
 app.all('*',(req,res,next)=>{
+    console.log(req.originalUrl)
     next(new AppError('galat end point', 404))
 })
 

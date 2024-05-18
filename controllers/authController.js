@@ -27,6 +27,7 @@ const createSendToken = (user, statusCode, res) => {
 
 
     res.cookie('jwt',token, cookieOptions)
+    res.locals.user = user
 
     res.status(statusCode).json({
         status:'success',
@@ -63,7 +64,6 @@ exports.login = catchAsync(async (req,res,next) => {
     if (!user || !(await user.correctPassword(password, user.password))){
         return next(new AppError('Incorrect email or password', 401))
     }
-
     createSendToken(user,200,res)
 })
 
@@ -100,6 +100,8 @@ exports.protect = catchAsync(async (req,res,next) => {
 
     // grant excess to protected route
     req.user = currentUser
+    res.locals.user = currentUser
+
     next()
 })
 
@@ -183,14 +185,17 @@ exports.updatePassword = catchAsync(async (req,res,next) => {
     // get user from the collection
     const user = await User.findById(req.user.id).select('+password')
     // check if POSTed current password is correct
-    if (!user.correctPassword(req.body.passwordCurrent, user.password)){
+    const valid = await user.correctPassword(req.body.passwordCurrent, user.password)
+    if (!valid){
         return next(new AppError("Password incorrect or user not found", 401))
     }
     // if so, update password
     user.password = req.body.newPassword
     user.passwordConfirm = req.body.newPasswordConfirm
-    await user.save()  // we didn't use findbyIdandUpdate cuz it won't run validators then
+    console.log("in update password")
+    await user.save()  // we didn't use findbyIdandUpdate  cuz it won't run validators then
     // log user in, send JWT
+    console.log("password changed")
     createSendToken(user,200,res)
 })
 
@@ -214,7 +219,7 @@ exports.isLoggedIn = async (req,res,next) => {
             }
             res.locals.user = currentUser // logged in user in the pug template
             console.log("in logged in")
-            console.log(currentUser)
+            // console.log(currentUser)
             return next()
         }catch (err){
             return next()
