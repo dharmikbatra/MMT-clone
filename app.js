@@ -11,6 +11,7 @@ const tourRouter = require('./routes/tourRoutes')
 const userRouter = require('./routes/userRoutes')
 const reviewRouter= require('./routes/reviewRoutes')
 const viewRouter = require('./routes/viewRoutes')
+const bookingRouter = require('./routes/bookingRoutes')
 const { whitelist } = require('validator')
 const path = require('path')
 var cors= require('cors');
@@ -40,15 +41,15 @@ app.use(express.static(path.join(__dirname, 'public')))
 // GLOBAL MIDDLEWARE
 // security middleware, which includes 14 small security middlewares
 // which sets HTTP response headers, some are on some are off
-// app.use(helmet())
+app.use(helmet())
 
 app.use(
     helmet.contentSecurityPolicy({
       directives: {
         defaultSrc: ["'self'"],
         baseUri: ["'self'"],
-        connectSrc: ["'self'", 'http://127.0.0.1:3000','http://localhost:3000','ws://localhost:63838/', ...connectSrcUrls],
-        scriptSrc: ["'self'", "https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js", ...scriptSrcUrls],
+        connectSrc: ["'self'", 'http://127.0.0.1:3000','http://localhost:3000','ws://localhost:63838/','https://checkout.stripe.com/*', ...connectSrcUrls],
+        scriptSrc: ["'self'", 'https://js.stripe.com/v3/', "https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js", ...scriptSrcUrls],
         styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
         workerSrc: ["'self'", 'blob:'],
         objectSrc: ["'none'"],
@@ -63,6 +64,7 @@ app.use(cors());
 if (process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'))
 }
+
 
 // limit requests from same IP
 const limiter = rateLimit({
@@ -92,7 +94,6 @@ app.use(hpp())  // clear the query string
 // test middleware
 app.use((req,res,next) => {
     req.requestTime = new Date().toISOString();
-    console.log(req.cookies)
     next();
 })
 
@@ -103,6 +104,7 @@ app.use((req,res,next) => {
 app.use('/api/v1/tours' , tourRouter)
 app.use('/api/v1/users' , userRouter)
 app.use('/api/v1/reviews', reviewRouter)
+app.use('/api/v1/bookings', bookingRouter)
 
 
 app.use('/', viewRouter)

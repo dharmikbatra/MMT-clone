@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema({
     },
     photo:{
         type:String,
+        default:'default.jpg'
     },
     role: {
         type: String,
@@ -98,7 +99,7 @@ userSchema.methods.createPasswordResetToken = function() {
 
     this.passwordResetExpires = Date.now() + 10*60*1000
     return resetToken
-    // database mein encrypted rakh liya aur bande ko resettoken bhej diya (kind of temporary password)
+    // database mein encrypted rakh liya aur bande ko reset token bhej diya (kind of temporary password)
 }
 const User = mongoose.model('User', userSchema)
 module.exports = User

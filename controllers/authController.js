@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs')
 const {promisify} = require('util')
 const sendEmail = require('../utils/email')
 const crypto = require('crypto')
+const Email = require('../utils/email')
 
 
 
@@ -36,7 +37,6 @@ const createSendToken = (user, statusCode, res) => {
             user
         }
     })
-
 }
 exports.signup = catchAsync(async (req,res,next) => {
     const newUser = await User.create({
@@ -48,7 +48,11 @@ exports.signup = catchAsync(async (req,res,next) => {
         role:req.body.role
     })
 
+    const url = `${req.protocol}://${req.get('host')}/me`
+
+    await new Email(newUser, url).sendWelcome()
     createSendToken(newUser,201,res)
+
 })
 
 exports.login = catchAsync(async (req,res,next) => {
@@ -129,20 +133,23 @@ exports.forgotPassword = catchAsync(async (req,res,next) => {
     const resetToken = user.createPasswordResetToken()
     await user.save({validateBeforeSave:false})
     // send it to user email
-    const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`
 
-    const message = `forgot password? submit a patch request with your new password and passwordConfirm to ${resetURL}. \n 
-        If you didn't forget your password, ignore this`
+    // const message = `forgot password? submit a patch request with your new password and passwordConfirm to ${resetURL}. \n 
+    //     If you didn't forget your password, ignore this`
 
     // if we get error in this, its not sufficient to just catch the error
     // we'll need to undo the token changes in the database also
 
     try{
-        await sendEmail({
-            email:user.email,
-            subject:'password reset token',
-            message
-        })
+        const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`
+
+        // await sendEmail({
+        //     email:user.email,
+        //     subject:'password reset token',
+        //     message
+        // })
+        await new Email(user, resetURL).sendPasswordReset()
+
         res.status(200).json({
             status:'success',
             message:'token sent success'
@@ -192,10 +199,9 @@ exports.updatePassword = catchAsync(async (req,res,next) => {
     // if so, update password
     user.password = req.body.newPassword
     user.passwordConfirm = req.body.newPasswordConfirm
-    console.log("in update password")
     await user.save()  // we didn't use findbyIdandUpdate  cuz it won't run validators then
     // log user in, send JWT
-    console.log("password changed")
+
     createSendToken(user,200,res)
 })
 
@@ -218,7 +224,6 @@ exports.isLoggedIn = async (req,res,next) => {
                 return next()
             }
             res.locals.user = currentUser // logged in user in the pug template
-            console.log("in logged in")
             // console.log(currentUser)
             return next()
         }catch (err){

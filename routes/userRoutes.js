@@ -2,6 +2,7 @@ const userController = require('./../controllers/userController')
 const authController = require('../controllers/authController')
 const express = require('express')
 
+
 const router = express.Router()
 
 
@@ -19,7 +20,11 @@ router.use(authController.protect) // will protect all routes under this
 
 
 router.patch('/updatePassword' ,authController.updatePassword)
-router.patch('/updateMe', userController.updateMe)
+router.patch(
+    '/updateMe', 
+    userController.uploadUserPhoto,
+    userController.resizeUserPhoto,
+    userController.updateMe)
 router.delete('/deleteMe', userController.deleteMe)
 router.get('/me', userController.getMe, userController.getUser)
 

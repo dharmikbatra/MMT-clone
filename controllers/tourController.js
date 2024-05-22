@@ -3,6 +3,63 @@ const APIFeatures = require('../utils/apiFeatures')
 const catchAsync = require('../utils/catchAsync')
 const AppError = require('../utils/appError')
 const factory = require('../controllers/handlerFactory')
+const multer = require('multer')
+const sharp = require('sharp')
+
+
+const multerStorage = multer.memoryStorage()
+
+const multerFilter = (req,file,cb) => {
+    if( file.mimetype.startsWith('image')){
+        cb(null, true)
+    }else{
+        cb(new AppError('Not an image, upload images only', 400),false)
+    }
+}
+const upload = multer({
+    storage:multerStorage,
+    fileFilter:multerFilter
+})
+
+exports.uploadTourImages = upload.fields([
+    {name:'imageCover', maxCount:1},
+    {name:'images', maxCount:3}
+])
+
+
+// upload.single('image') // for only single image
+// upload.array('images',3)  // for only array
+
+exports.resizeTourImages = catchAsync(async (req,res,next) => {
+    // console.log(req.files)
+    if(!req.files.imageCover || !req.files.images){return next()}
+
+    // cover image
+    const imageCoverFilename = `tour-${req.params.id}-${Date.now()}-cover.jpeg`
+    await sharp(req.files.imageCover[0].buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({quality:90})
+        .toFile(`public/img/tours/${imageCoverFilename}`)
+
+    req.body.imageCover = imageCoverFilename
+    // other images
+    req.body.images = []
+
+    await Promise.all( req.files.images.map(async (file, i) => {
+            const filename = `tour-${req.params.id}-${Date.now()}-${i+1}.jpeg`
+            console.log("hi")
+
+        await sharp(file.buffer)
+            .resize(2000, 1333)
+            .toFormat('jpeg')
+            .jpeg({quality:90})
+            .toFile(`public/img/tours/${filename}`)
+
+        req.body.images.push(filename)
+        }))
+    next()
+})
 
 exports.aliasTopTours = (req,res,next) => {
     req.query.limit = '5'
@@ -146,7 +203,7 @@ exports.getToursWithin = catchAsync(async (req,res,next) => {
 
     const radius = unit === 'mi' ? distance/3963.2 : distance/6378.1 //radius should be in radians, distance/ radius of earth (convention)
     if(!lat || !long){
-        console.log("dhbatra")
+        // console.log("dhbatra")
         next(new AppError("please provide latitude and longitude in this order: lat,long", 400))
     }
     const tours = await Tour.find(
@@ -172,7 +229,7 @@ exports.getDistances = catchAsync(async (req,res,next) => {
     const [lat,long] = latlong.split(',')
 
     if(!lat || !long){
-        console.log("dhbatra")
+        // console.log("dhbatra")
         next(new AppError("please provide latitude and longitude in this order: lat,long", 400))
     }
 

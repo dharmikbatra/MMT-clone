@@ -66,7 +66,7 @@ const sendErrorProd = (err , req,res) => {
 module.exports = (err, req,res, next) => {  // defining 4 parameters, itself means that express knows that its a error middleware
     err.statusCode = err.statusCode || 500;
     err.status = err.status || 'error'
-    console.log(err)
+    // console.log(err)
 
 
     if(process.env.NODE_ENV === 'development'){
