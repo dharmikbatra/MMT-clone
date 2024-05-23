@@ -146,14 +146,14 @@ tourSchema.pre('save', async function(next){
     next()
 })
 
-tourSchema.pre('save', function(next){
-    console.log("second pre")
-    next()
-})
-tourSchema.post('save', function(doc, next){
-    console.log(doc)
-    next()
-})
+// tourSchema.pre('save', function(next){
+//     // console.log("second pre")
+//     next()
+// })
+// tourSchema.post('save', function(doc, next){
+//     console.log(doc)
+//     next()
+// })
 
 //query middleware
 tourSchema.pre(/^find/, function(next){  // regex for all fxns starting with find
@@ -172,7 +172,7 @@ tourSchema.pre(/^find/, function(next){
 })
 tourSchema.post(/^find/, function(doc, next){
     // console.log(doc)
-    console.log(`query took: ${Date.now() - this.start}`)
+    // console.log(`query took: ${Date.now() - this.start}`)
     next()
 })
 

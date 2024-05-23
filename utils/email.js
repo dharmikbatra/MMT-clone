@@ -54,8 +54,8 @@ module.exports = class Email {
             // html:
 
         }
-        console.log("hi2")
-        console.log(process.env.NODE_ENV)
+        // console.log("hi2")
+        // console.log(process.env.NODE_ENV)
         await this.newTransport().sendMail(mailOptions)
         // create a transport and send email
     }

@@ -13,6 +13,7 @@ const reviewRouter= require('./routes/reviewRoutes')
 const viewRouter = require('./routes/viewRoutes')
 const bookingRouter = require('./routes/bookingRoutes')
 const { whitelist } = require('validator')
+const compression = require('compression')
 const path = require('path')
 var cors= require('cors');
 const cookieParser = require('cookie-parser')
@@ -65,6 +66,7 @@ app.use(cors());
 if (process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'))
 }
+app.use(compression())
 
 
 // limit requests from same IP
@@ -111,7 +113,7 @@ app.use('/api/v1/bookings', bookingRouter)
 app.use('/', viewRouter)
 
 app.all('*',(req,res,next)=>{
-    console.log(req.originalUrl)
+    // console.log(req.originalUrl)
     next(new AppError('galat end point', 404))
 })
 
