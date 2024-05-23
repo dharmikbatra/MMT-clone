@@ -46,11 +46,11 @@ app.use(helmet())
 app.use(
     helmet.contentSecurityPolicy({
       directives: {
-        defaultSrc: ["'self'"],
+        defaultSrc: ["'self'", "https://js.stripe.com/v3/"],
         baseUri: ["'self'"],
-        connectSrc: ["'self'", 'http://127.0.0.1:3000','http://localhost:3000','ws://localhost:63838/','https://checkout.stripe.com/*', ...connectSrcUrls],
-        scriptSrc: ["'self'", 'https://js.stripe.com/v3/', "https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js", ...scriptSrcUrls],
-        styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+        connectSrc: ["'self'","https://js.stripe.com/v3/", 'http://127.0.0.1:3000','http://localhost:3000','ws://localhost:63838/','https://checkout.stripe.com/*', ...connectSrcUrls],
+        scriptSrc: ["'self'", 'unsafe-eval', 'unsafe-hashes','nonce-394726394026385629',"https://js.stripe.com/v3/", "https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js", ...scriptSrcUrls],
+        styleSrc: ["'self'", "'unsafe-inline'","https://js.stripe.com/v3/", ...styleSrcUrls],
         workerSrc: ["'self'", 'blob:'],
         objectSrc: ["'none'"],
         imgSrc: ["'self'", 'blob:', 'data:', 'https:'],
@@ -59,6 +59,7 @@ app.use(
       }
     })
   );
+
 
 app.use(cors());
 if (process.env.NODE_ENV === 'development'){

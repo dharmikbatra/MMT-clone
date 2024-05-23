@@ -52,7 +52,7 @@ module.exports = class Email {
             html
             // text:htmlToText.convert(html)
             // html:
-            
+
         }
         console.log("hi2")
         console.log(process.env.NODE_ENV)
@@ -68,6 +68,12 @@ module.exports = class Email {
         await this.send(
             'passwordReset',
             'Your password reset token (valid for 10 minutes only)'
+        )
+    }
+    async sendBookedTour(){
+        await this.send(
+            'bookedTour',
+            'Your Booking with Natours Confirmed!'
         )
     }
 }

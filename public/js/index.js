@@ -72,7 +72,7 @@ if(bookBtn){
         e.target.textContent = 'Processing...'
         const tourId = e.target.dataset.tourId // data-tour-id banaya hai html mein, it converts to dataset.tourId
         await bookTour(tourId)
-        e.target.textContent = 'Book the tour'
+        e.target.textContent = 'Book Tour Now!'
     })
 }
 

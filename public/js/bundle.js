@@ -6872,157 +6872,7 @@ var updateSettings = exports.updateSettings = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
-},{"./alerts":"alerts.js"}],"../../node_modules/form-urlencoded/form-urlencoded.js":[function(require,module,exports) {
-// Filename: formurlencoded.js
-// Timestamp: 2016.03.07-12:29:28 (last modified)
-// Author(s): Bumblehead (www.bumblehead.com), JBlashill (james@blashill.com), Jumper423 (jump.e.r@yandex.ru)
-//
-// http://www.w3.org/TR/html5/forms.html#url-encoded-form-data
-// input: {one:1,two:2} return: '[one]=1&[two]=2'
-
-module.exports = function (data, opts) {
-    "use strict";
-
-    // ES5 compatible version of `/[^ !'()~\*]/gu`, https://mothereff.in/regexpu
-    var encodechar = new RegExp([
-        '(?:[\0-\x1F"-&\+-\}\x7F-\uD7FF\uE000-\uFFFF]|',
-        '[\uD800-\uDBFF][\uDC00-\uDFFF]|[\uD800-\uDBFF](?![\uDC00-\uDFFF])|',
-        '(?:[^\uD800-\uDBFF]|^)[\uDC00-\uDFFF])'
-    ].join(''), 'g');
-
-    opts = typeof opts === 'object' ? opts : {};
-
-    function encode(value) {
-        return String(value)
-            .replace(encodechar, encodeURIComponent)
-            .replace(/ /g, '+')
-            .replace(/[!'()~\*]/g, function (ch) {
-                return '%' + ch.charCodeAt().toString(16).slice(-2).toUpperCase();
-            });
-    }
-
-    function keys(obj) {
-        var itemsKeys = Object.keys(obj);
-
-        return opts.sorted ? itemsKeys.sort() : itemsKeys;
-    }
-
-    function filterjoin(arr) {
-        return arr.filter(function (e) {
-            return e;
-        }).join('&');
-    }
-
-    function objnest(name, obj) {
-        return filterjoin(keys(obj).map(function (key) {
-            return nest(name + '[' + key + ']', obj[key]);
-        }));
-    }
-
-    function arrnest(name, arr) {
-        return arr.length ? filterjoin(arr.map(function (elem, index) {
-            if (opts.skipIndex) {
-                return nest(name + '[]', elem);
-            } else {
-                return nest(name + '[' + index + ']', elem);
-            }
-        })) : encode(name + '[]');
-    }
-
-    function nest(name, value) {
-        var type = typeof value,
-            f = null;
-
-        if (value === f) {
-            f = opts.ignorenull ? f : encode(name) + '=' + f;
-        } else if (/string|number|boolean/.test(type)) {
-            f = encode(name) + '=' + encode(value);
-        } else if (Array.isArray(value)) {
-            f = arrnest(name, value);
-        } else if (type === 'object') {
-            f = objnest(name, value);
-        }
-
-        return f;
-    }
-
-    return data && filterjoin(keys(data).map(function (key) {
-            return nest(key, data[key]);
-        }));
-};
-
-},{}],"../../node_modules/stripe-client/index.js":[function(require,module,exports) {
-const STRIPE_URL = 'https://api.stripe.com/v1/';
-const FORMURLENCODED = require('form-urlencoded');
-
-module.exports = function(key) {
-  return {
-    createToken: async function (details) {
-      const keys = Object.keys(details);
-      const index = _findType(details, keys);
-      var token;
-      if (index == 0) {
-        let type = keys[index];
-        var newDetails = _convertDetails(type, details[type]);
-        token = await _createTokenHelper(newDetails, key);
-      } else {
-        token = await _createTokenHelper(details, key);
-      }
-      return _parseJSON(token);
-    }
-  }
-}
-
-// Stripe normally only allows for fetch format for the details provided.
-// _findType allows the user to use the node format of the details by
-// figuring out which format/type the details provided are.
-function _findType(details, keys) {
-  if (details.card != null) {
-    return keys.indexOf("card");
-  } else if (details.bank_account != null) {
-    return keys.indexOf("bank_account");
-  } else if (details.pii != null) {
-    return keys.indexOf("pii");
-  } else return false;
-}
-
-// _convertDetails converts and returns the data in the given details
-// to the correct Stripe format for the given type.
-function _convertDetails(type, details) {
-  var convertedDetails = {}
-  for (var data in details) {
-    const string = type + '[' + data + ']';
-    convertedDetails[string] = details[data];
-  }
-  return convertedDetails;
-}
-
-// Stripe gives a JSON object with the token object embedded as a JSON string.
-// _parseJSON finds that string in and returns it as a JSON object, or an error
-// if Stripe threw an error instead. If the JSON does not need to be parsed, returns the token.
-async function _parseJSON(token) {
-  if (token._bodyInit == null) {
-    return token;
-  } else {
-    const body = await token.json();
-    return body;
-  }
-}
-
-function _createTokenHelper(details, key) {
-  const formBody = FORMURLENCODED(details);
-  return fetch(STRIPE_URL + 'tokens', {
-    method: 'post',
-    headers: {
-      'Accept': 'application/json',
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Authorization': 'Bearer ' + key
-    },
-    body: formBody
-  });
-}
-
-},{"form-urlencoded":"../../node_modules/form-urlencoded/form-urlencoded.js"}],"stripe.js":[function(require,module,exports) {
+},{"./alerts":"alerts.js"}],"stripe.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -7034,8 +6884,16 @@ function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == 
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-// const stripe = Stripe('pk_test_51PIo0KSGDoMzePPsePZLpU13YE0FA47B58s4vFDX7JDgpEglRh7zftKJ8JJWkQVjFlejlrlrBGlalFhQpKjas3IH00ueqLS1ep')
-var stripe = require("stripe-client")("pk_test_51PIo0KSGDoMzePPsePZLpU13YE0FA47B58s4vFDX7JDgpEglRh7zftKJ8JJWkQVjFlejlrlrBGlalFhQpKjas3IH00ueqLS1ep");
+// import {loadStripe} from '@stripe/stripe-js';
+// const stripe = require('stripe')('pk_test_51PIo0KSGDoMzePPsePZLpU13YE0FA47B58s4vFDX7JDgpEglRh7zftKJ8JJWkQVjFlejlrlrBGlalFhQpKjas3IH00ueqLS1ep')
+
+var stripe = Stripe('pk_test_51PIo0KSGDoMzePPsePZLpU13YE0FA47B58s4vFDX7JDgpEglRh7zftKJ8JJWkQVjFlejlrlrBGlalFhQpKjas3IH00ueqLS1ep');
+// const stripe = require("stripe-client")(
+// const stripe = new Stripe(
+//         const stripe = loadStripe(
+//     "pk_test_51PIo0KSGDoMzePPsePZLpU13YE0FA47B58s4vFDX7JDgpEglRh7zftKJ8JJWkQVjFlejlrlrBGlalFhQpKjas3IH00ueqLS1ep"
+//   );
+
 var bookTour = exports.bookTour = /*#__PURE__*/function () {
   var _ref = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(tourID) {
     var session;
@@ -7055,10 +6913,7 @@ var bookTour = exports.bookTour = /*#__PURE__*/function () {
             sessionId: session.data.session.id
           });
         case 7:
-          location.assign(session.data.session.url);
-          // console.log("hello")
-          _context.next = 14;
-          break;
+          return _context.abrupt("return", _context.sent);
         case 10:
           _context.prev = 10;
           _context.t0 = _context["catch"](0);
@@ -7074,7 +6929,7 @@ var bookTour = exports.bookTour = /*#__PURE__*/function () {
     return _ref.apply(this, arguments);
   };
 }();
-},{"./alerts":"alerts.js","stripe-client":"../../node_modules/stripe-client/index.js"}],"index.js":[function(require,module,exports) {
+},{"./alerts":"alerts.js"}],"index.js":[function(require,module,exports) {
 "use strict";
 
 require("core-js/modules/es6.array.copy-within.js");
@@ -7327,7 +7182,7 @@ if (bookBtn) {
             _context4.next = 4;
             return (0, _stripe.bookTour)(tourId);
           case 4:
-            e.target.textContent = 'Book the tour';
+            e.target.textContent = 'Book Tour Now!';
           case 5:
           case "end":
             return _context4.stop();

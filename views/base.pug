@@ -8,6 +8,9 @@ html
             link(rel='stylesheet' href='/css/style.css')
             link(rel='shortcut icon' type='image/png' href='/img/favicon.png')
             title Natours | #{title}
+            //- meta(http-equiv="X-Vhost" content="lorem")
+            //- meta(http-equiv="Content-Security-Policy" content="default-src 'self'; form-action 'none'; script-src 'self' 'unsafe-eval' 'unsafe-hashes' https://cdn-apac.onetrust.com https://www.google.com https://assets.adobedtm.com https://www.googletagmanager.com https://www.gstatic.com https://www.youtube.com 'nonce-394726394026385629';")
+
 
     body
         //- h1= tour
@@ -28,6 +31,7 @@ html
         script(src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.8/axios.min.js" integrity="sha512-PJa3oQSLWRB7wHZ7GQ/g+qyv6r4mbuhmiDb8BjSFZ8NZ2a42oTtAq5n0ucWAwcQDlikAtkub+tPVCw4np27WCg==" crossorigin="anonymous" referrerpolicy="no-referrer")
         //- script(src='/js/mapbox.js')
         //- script(src='/js/login.js')
+        script(src="https://js.stripe.com/v3/")
         script(src='/js/bundle.js')
         //- script(src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js")
 

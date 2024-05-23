@@ -105,7 +105,6 @@ exports.protect = catchAsync(async (req,res,next) => {
     // grant excess to protected route
     req.user = currentUser
     res.locals.user = currentUser
-
     next()
 })
 

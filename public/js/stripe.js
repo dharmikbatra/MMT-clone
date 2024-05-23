@@ -1,10 +1,14 @@
 import { showAlert } from "./alerts"
+// import {loadStripe} from '@stripe/stripe-js';
+// const stripe = require('stripe')('pk_test_51PIo0KSGDoMzePPsePZLpU13YE0FA47B58s4vFDX7JDgpEglRh7zftKJ8JJWkQVjFlejlrlrBGlalFhQpKjas3IH00ueqLS1ep')
 
-// const stripe = Stripe('pk_test_51PIo0KSGDoMzePPsePZLpU13YE0FA47B58s4vFDX7JDgpEglRh7zftKJ8JJWkQVjFlejlrlrBGlalFhQpKjas3IH00ueqLS1ep')
-const stripe = require("stripe-client")(
-    "pk_test_51PIo0KSGDoMzePPsePZLpU13YE0FA47B58s4vFDX7JDgpEglRh7zftKJ8JJWkQVjFlejlrlrBGlalFhQpKjas3IH00ueqLS1ep"
-  );
-  
+const stripe = Stripe('pk_test_51PIo0KSGDoMzePPsePZLpU13YE0FA47B58s4vFDX7JDgpEglRh7zftKJ8JJWkQVjFlejlrlrBGlalFhQpKjas3IH00ueqLS1ep')
+// const stripe = require("stripe-client")(
+    // const stripe = new Stripe(
+//         const stripe = loadStripe(
+//     "pk_test_51PIo0KSGDoMzePPsePZLpU13YE0FA47B58s4vFDX7JDgpEglRh7zftKJ8JJWkQVjFlejlrlrBGlalFhQpKjas3IH00ueqLS1ep"
+//   );
+
 
 export const bookTour = async tourID => {
     // get session from server
@@ -13,10 +17,10 @@ export const bookTour = async tourID => {
         console.log(session.data.session)
 
         // create checkout form + charge credit card
-        await stripe.redirectToCheckout({
+        return await stripe.redirectToCheckout({
             sessionId:session.data.session.id
         })
-        location.assign(session.data.session.url)
+        // location.assign(session.data.session.url)
         // console.log("hello")
 
     }catch(err){
